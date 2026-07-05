@@ -6,7 +6,12 @@ if(last)
   }
 
 if base_head is NULL, means linked list has not been made yet, so we create new blocks, but when base_head is not NULL, that means there is a linked list and we first need to check for free blocks rather than making new one.
+-----------------------------------------------------------
 
+after allocating the block, the pointer is saved as block_ptr, and ptr is incremented by 1 bytes, so when next time a allocation is requested, it starts with ptr, not block_ptr. Usage: 
+
+return (block+1);
+-----------------------------------------------------------
 */
 
 
@@ -22,7 +27,7 @@ struct header_block
     int free;           
     int magic;          // debug
 
-  };
+};
   
 void * base_head = NULL;
 
@@ -64,6 +69,11 @@ struct header_block *append_new_block(struct header_block* last, size_t size)
   return block;
 }
 
+// function to get allocated block pointer.
+struct header_block* get_block_ptr(void *ptr)
+{
+  return (struct header_block*)ptr - 1;
+}
 
 
 void * malloc(size_t size)
@@ -100,25 +110,25 @@ void * malloc(size_t size)
       block->free = 0;
       block->magic = 0x77777777;
     }
-    return (block+1);
   }
-
-
-  void *ptr = sbrk(0);
-  void *request = sbrk(size + HEADER_SIZE);
-  if (request == (void*) -1) 
-  {
-    return NULL; 
-  } 
-  else 
-  {
-    assert(ptr == request);
-    void *data_ptr = (char*) request + HEADER_SIZE;  
-    return data_ptr;
-  }
+  return (block+1);
 }
 
 void free(void *ptr)
 {
+  if (!ptr)
+  {
+    return;
+  }
+  struct header_block* block_ptr = get_block_ptr(ptr);
+  assert(block_ptr->free == 0);
 
+  assert(block_ptr->magic == 0x7777777 || block_ptr->magic == 0x12345678);
+}
+
+
+
+int main()
+{
+  return 0;
 }
