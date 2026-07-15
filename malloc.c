@@ -124,8 +124,39 @@ void free(void *ptr)
   assert(block_ptr->free == 0);
 
   assert(block_ptr->magic == 0x7777777 || block_ptr->magic == 0x12345678);
+  block_ptr->free = 1;
+  block_ptr->magic = 0x55555555;
+
 }
 
+void *realloc(void *ptr, size_t size)
+{
+  // ptr --- > null, it acts as malloc
+  if(!ptr)
+  {
+    return malloc(size);
+  }
+
+  struct header_block* block_ptr = get_block_ptr(ptr);
+  
+  // block is lredy big so nothing to add more. 
+  if(block_ptr->size >= size)
+  {
+    return ptr;
+  }
+
+  void *new_ptr;
+  new_ptr = mlloc(size);
+
+  if(!new_ptr)
+  {
+    return NULL;
+  }
+  memcpy(new_ptr, ptr, block_ptr->size);
+  free(ptr);
+  return new_ptr;
+
+}
 
 
 int main()
