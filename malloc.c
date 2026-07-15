@@ -146,7 +146,7 @@ void *realloc(void *ptr, size_t size)
   }
 
   void *new_ptr;
-  new_ptr = mlloc(size);
+  new_ptr = malloc(size);
 
   if(!new_ptr)
   {
@@ -158,6 +158,13 @@ void *realloc(void *ptr, size_t size)
 
 }
 
+void *calloc(size_t nelem, size_t elsize)
+{
+  size_t size = nelem * elsize;     // check overflow later
+  void *ptr = malloc(size);
+  memset(ptr, 0, size);
+  return ptr;
+}
 
 int main()
 {
